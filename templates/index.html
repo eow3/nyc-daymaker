@@ -18,8 +18,13 @@
   <script>
     const map = L.map('map').setView([40.7128, -74.0060], 12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    let markers = L.layerGroup().addTo(map);
 
     async function getPlan() {
+      const result = document.getElementById('result');
+      result.textContent = 'Planning your day...';
+      markers.clearLayers();
+
       const res = await fetch('/plan', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
@@ -29,7 +34,21 @@
         })
       });
       const data = await res.json();
-      document.getElementById('result').textContent = data.plan;
+      result.textContent = data.plan;
+
+      if (data.stops.length === 0) return;
+
+      const points = [];
+      data.stops.forEach((stop, i) => {
+        const point = [stop.lat, stop.lng];
+        points.push(point);
+        L.marker(point)
+          .addTo(markers)
+          .bindPopup(`<b>${i + 1}. ${stop.name}</b><br>${stop.time}<br>${stop.why}`);
+      });
+
+      L.polyline(points, {dashArray: '6 8'}).addTo(markers);
+      map.fitBounds(points, {padding: [40, 40]});
     }
   </script>
 </body>
