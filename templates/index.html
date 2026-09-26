@@ -42,9 +42,12 @@
       data.stops.forEach((stop, i) => {
         const point = [stop.lat, stop.lng];
         points.push(point);
+               const link = stop.link
+          ? `<br><a href="${stop.link}" target="_blank" rel="noopener noreferrer">Event details</a>`
+          : '';
         L.marker(point)
           .addTo(markers)
-          .bindPopup(`<b>${i + 1}. ${stop.name}</b><br>${stop.time}<br>${stop.why}`);
+          .bindPopup(`<b>${i + 1}. ${stop.name}</b><br>${stop.time}<br>${stop.why}${link}`);
       });
 
       L.polyline(points, {dashArray: '6 8'}).addTo(markers);
