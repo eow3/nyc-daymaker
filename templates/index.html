@@ -12,6 +12,7 @@
   </select>
   <input id="hours" type="number" value="3" min="1" max="12"> hours
   <button onclick="getPlan()">Plan my day</button>
+  <p id="weather"></p>
   <p id="result"></p>
   <div id="map"></div>
 
@@ -35,6 +36,9 @@
       });
       const data = await res.json();
       result.textContent = data.plan;
+            if (data.weather) {
+        document.getElementById('weather').textContent = `Right now in NYC: ${data.weather}`;
+      }
 
       if (data.stops.length === 0) return;
 

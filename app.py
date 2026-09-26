@@ -122,7 +122,7 @@ Respond ONLY with JSON in this exact format:
 
     try:
         result = ask_gemini(prompt)
-        return jsonify({"plan": result["summary"], "stops": result["stops"]})
+        return jsonify({"plan": result["summary"], "stops": result["stops"], "weather": weather})
     except Exception as e:
         if "429" in str(e):
             msg = "Too many plans too fast! Wait a minute and try again."
