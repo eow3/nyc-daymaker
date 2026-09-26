@@ -42,6 +42,7 @@
     </label>
 
     <button onclick="getPlan()">Plan my day</button>
+        <button id="offroute-btn" onclick="goOffRoute()" style="display:none">Take me off route</button>
   </div>
 
   <p id="weather"></p>
@@ -52,11 +53,23 @@
     const map = L.map('map').setView([40.7128, -74.0060], 12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
     let markers = L.layerGroup().addTo(map);
+    let currentStops = [];
+    let currentLoc = null;
 
     function escapeHtml(text) {
       const div = document.createElement('div');
       div.textContent = text ?? '';
       return div.innerHTML;
+    }
+
+    function getSettings() {
+      return {
+        mood: document.getElementById('mood').value,
+        hours: document.getElementById('hours').value,
+        budget: document.getElementById('budget').value,
+        group: document.getElementById('group').value,
+        accessible: document.getElementById('accessible').checked
+      };
     }
 
     function getLocation() {
@@ -73,24 +86,40 @@
       });
     }
 
+    function makePopup(stop, label) {
+      const eventLink = stop.link && stop.link.startsWith('http')
+        ? `<br><a href="${escapeHtml(stop.link)}" target="_blank" rel="noopener noreferrer">Event details</a>`
+        : '';
+      const directions = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(stop.name + ', New York, NY')}&travelmode=transit`;
+      return `<b>${label}. ${escapeHtml(stop.name)}</b><br>` +
+        (stop.time ? `${escapeHtml(stop.time)}<br>` : '') +
+        `${escapeHtml(stop.why)}${eventLink}` +
+        `<br><a href="${directions}" target="_blank" rel="noopener noreferrer">Directions</a>`;
+    }
+
+    function fitAll() {
+      const pts = currentStops.map(s => [s.lat, s.lng]);
+      if (currentLoc) pts.push([currentLoc.lat, currentLoc.lng]);
+      if (pts.length) map.fitBounds(pts, {padding: [40, 40]});
+    }
+
     async function getPlan() {
       const result = document.getElementById('result');
+      const offBtn = document.getElementById('offroute-btn');
       result.textContent = 'Planning your day...';
+      offBtn.style.display = 'none';
       markers.clearLayers();
+      currentStops = [];
 
-      const loc = await getLocation();
+      currentLoc = await getLocation();
 
       const res = await fetch('/plan', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
-          mood: document.getElementById('mood').value,
-          hours: document.getElementById('hours').value,
-          budget: document.getElementById('budget').value,
-          group: document.getElementById('group').value,
-          accessible: document.getElementById('accessible').checked,
-          lat: loc ? loc.lat : null,
-          lng: loc ? loc.lng : null
+          ...getSettings(),
+          lat: currentLoc ? currentLoc.lat : null,
+          lng: currentLoc ? currentLoc.lng : null
         })
       });
       const data = await res.json();
@@ -101,36 +130,55 @@
       }
 
       if (data.stops.length === 0) return;
+      currentStops = data.stops;
 
-      const points = [];
       data.stops.forEach((stop, i) => {
-        const point = [stop.lat, stop.lng];
-        points.push(point);
-
-        const eventLink = stop.link && stop.link.startsWith('http')
-          ? `<br><a href="${escapeHtml(stop.link)}" target="_blank" rel="noopener noreferrer">Event details</a>`
-          : '';
-        const directions = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(stop.name + ', New York, NY')}&travelmode=transit`;
-
-        L.marker(point)
-          .addTo(markers)
-          .bindPopup(
-            `<b>${i + 1}. ${escapeHtml(stop.name)}</b><br>` +
-            `${escapeHtml(stop.time)}<br>${escapeHtml(stop.why)}` +
-            `${eventLink}<br><a href="${directions}" target="_blank" rel="noopener noreferrer">Directions</a>`
-          );
+        L.marker([stop.lat, stop.lng]).addTo(markers).bindPopup(makePopup(stop, i + 1));
       });
+      L.polyline(data.stops.map(s => [s.lat, s.lng]), {dashArray: '6 8'}).addTo(markers);
 
-      L.polyline(points, {dashArray: '6 8'}).addTo(markers);
-
-      const bounds = [...points];
-      if (loc) {
-        L.circleMarker([loc.lat, loc.lng], {radius: 8, color: '#e63946', fillOpacity: 0.8})
+      if (currentLoc) {
+        L.circleMarker([currentLoc.lat, currentLoc.lng], {radius: 8, color: '#e63946', fillOpacity: 0.8})
           .addTo(markers)
           .bindPopup('You are here');
-        bounds.push([loc.lat, loc.lng]);
       }
-      map.fitBounds(bounds, {padding: [40, 40]});
+
+      fitAll();
+      offBtn.style.display = 'inline-block';
+    }
+
+    async function goOffRoute() {
+      const btn = document.getElementById('offroute-btn');
+      btn.disabled = true;
+      btn.textContent = 'Finding a hidden gem...';
+
+      try {
+        const res = await fetch('/offroute', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            ...getSettings(),
+            stops: currentStops.map(s => ({name: s.name, lat: s.lat, lng: s.lng}))
+          })
+        });
+        const data = await res.json();
+
+        if (data.gem) {
+          currentStops.push(data.gem);
+          L.circleMarker([data.gem.lat, data.gem.lng], {
+            radius: 11, color: '#f4a261', fillColor: '#f4a261', fillOpacity: 0.9
+          })
+            .addTo(markers)
+            .bindPopup(makePopup(data.gem, '★ Off route'))
+            .openPopup();
+          fitAll();
+        } else {
+          alert(data.error || 'Could not find a hidden gem right now. Try again!');
+        }
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Take me off route';
+      }
     }
   </script>
 </body>
