@@ -1,0 +1,36 @@
+<head>
+  <title>NYC Daymaker</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+</head>
+
+<body>
+  <h1>NYC Daymaker</h1>
+  <select id="mood">
+    <option>chill</option><option>adventurous</option><option>social</option><option>creative</option>
+  </select>
+  <input id="hours" type="number" value="3" min="1" max="12"> hours
+  <button onclick="getPlan()">Plan my day</button>
+  <p id="result"></p>
+  <div id="map"></div>
+
+  <script>
+    const map = L.map('map').setView([40.7128, -74.0060], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+    async function getPlan() {
+      const res = await fetch('/plan', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          mood: document.getElementById('mood').value,
+          hours: document.getElementById('hours').value
+        })
+      });
+      const data = await res.json();
+      document.getElementById('result').textContent = data.plan;
+    }
+  </script>
+</body>
+</html>

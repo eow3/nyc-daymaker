@@ -1,0 +1,8 @@
+body {
+  font-family: sans-serif;
+  margin: 16px;
+}
+
+#map {
+  height: 70vh;
+}
