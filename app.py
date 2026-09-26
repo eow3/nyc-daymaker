@@ -83,7 +83,18 @@ def ask_gemini(prompt):
     raise RuntimeError("All models busy")
 
 
+BUDGETS = {
+    "free": "Only suggest free activities (parks, free museums, free events, public spaces).",
+    "low": "Keep it cheap, around $20 per person or less for the whole plan.",
+    "medium": "A moderate budget is fine, around $50 per person for the whole plan.",
+}
 
+GROUPS = {
+    "solo": "They are going solo, so pick spots that are comfortable to enjoy alone.",
+    "date": "It's a date, so pick romantic or conversation-friendly spots.",
+    "friends": "They're with friends, so pick lively, group-friendly spots.",
+    "kids": "They have kids with them, so every stop must be family-friendly.",
+}
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -100,12 +111,28 @@ def plan():
         location_line = f"They are currently near latitude {lat}, longitude {lng}. Start the plan close to where they are."
     else:
         location_line = "Their location is unknown, so pick a lively, easy-to-reach neighborhood."
+        
+    budget_line = BUDGETS.get(data.get("budget"), BUDGETS["low"])
+    group_line = GROUPS.get(data.get("group"), GROUPS["solo"])
+    access_line = (
+        "Every stop must be wheelchair accessible and step-free. If they need the subway, "
+        "only route through stations with elevators, and mention accessibility in 'why'."
+        if data.get("accessible") is True else ""
+    ) 
+     
+        
     print("Weather:", weather)
 
     prompt = f"""
 You are a friendly NYC local helping someone who is tired of deciding what to do.
 It is currently {now}. The weather in NYC right now is {weather}.
 {location_line}
+It is currently {now}. The weather in NYC right now is {weather}.
+{location_line}
+Their mood is "{data['mood']}" and they have {data['hours']} hours.
+{budget_line}
+{group_line}
+{access_line}
 Their mood is "{data['mood']}" and they have {data['hours']} hours.
 If it's raining, very cold, or very hot, favor indoor spots. If it's nice out, favor outdoor ones.
 Here are live web search results about what's happening in NYC today:

@@ -1,25 +1,63 @@
+<!DOCTYPE html>
+<html>
 <head>
   <title>NYC Daymaker</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 </head>
-
 <body>
   <h1>NYC Daymaker</h1>
-  <select id="mood">
-    <option>chill</option><option>adventurous</option><option>social</option><option>creative</option>
-  </select>
-  <input id="hours" type="number" value="3" min="1" max="12"> hours
-  <button onclick="getPlan()">Plan my day</button>
+
+  <div id="controls">
+    <label>Mood
+      <select id="mood">
+        <option>chill</option><option>adventurous</option><option>social</option><option>creative</option>
+      </select>
+    </label>
+
+    <label>Hours
+      <input id="hours" type="number" value="3" min="1" max="12">
+    </label>
+
+    <label>Budget
+      <select id="budget">
+        <option value="free">Free</option>
+        <option value="low" selected>$</option>
+        <option value="medium">$$</option>
+      </select>
+    </label>
+
+    <label>Who's coming
+      <select id="group">
+        <option value="solo">Just me</option>
+        <option value="date">Date</option>
+        <option value="friends">Friends</option>
+        <option value="kids">With kids</option>
+      </select>
+    </label>
+
+    <label>
+      <input id="accessible" type="checkbox"> Step-free / wheelchair accessible
+    </label>
+
+    <button onclick="getPlan()">Plan my day</button>
+  </div>
+
   <p id="weather"></p>
   <p id="result"></p>
   <div id="map"></div>
 
-    <script>
+  <script>
     const map = L.map('map').setView([40.7128, -74.0060], 12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
     let markers = L.layerGroup().addTo(map);
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text ?? '';
+      return div.innerHTML;
+    }
 
     function getLocation() {
       return new Promise(resolve => {
@@ -48,6 +86,9 @@
         body: JSON.stringify({
           mood: document.getElementById('mood').value,
           hours: document.getElementById('hours').value,
+          budget: document.getElementById('budget').value,
+          group: document.getElementById('group').value,
+          accessible: document.getElementById('accessible').checked,
           lat: loc ? loc.lat : null,
           lng: loc ? loc.lng : null
         })
@@ -65,12 +106,19 @@
       data.stops.forEach((stop, i) => {
         const point = [stop.lat, stop.lng];
         points.push(point);
-        const link = stop.link
-          ? `<br><a href="${stop.link}" target="_blank" rel="noopener noreferrer">Event details</a>`
+
+        const eventLink = stop.link && stop.link.startsWith('http')
+          ? `<br><a href="${escapeHtml(stop.link)}" target="_blank" rel="noopener noreferrer">Event details</a>`
           : '';
+        const directions = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(stop.name + ', New York, NY')}&travelmode=transit`;
+
         L.marker(point)
           .addTo(markers)
-          .bindPopup(`<b>${i + 1}. ${stop.name}</b><br>${stop.time}<br>${stop.why}${link}`);
+          .bindPopup(
+            `<b>${i + 1}. ${escapeHtml(stop.name)}</b><br>` +
+            `${escapeHtml(stop.time)}<br>${escapeHtml(stop.why)}` +
+            `${eventLink}<br><a href="${directions}" target="_blank" rel="noopener noreferrer">Directions</a>`
+          );
       });
 
       L.polyline(points, {dashArray: '6 8'}).addTo(markers);
