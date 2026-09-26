@@ -7,6 +7,7 @@ from google import genai
 from google.genai import types
 from tavily import TavilyClient
 import time
+import requests
 
 load_dotenv()
 app = Flask(__name__)
@@ -31,6 +32,36 @@ def find_events(mood):
     except Exception as e:
         print("Tavily error:", e)
         return "No live events found."
+    
+    
+WEATHER_CODES = {
+    0: "clear skies", 1: "mostly clear", 2: "partly cloudy", 3: "overcast",
+    45: "foggy", 48: "foggy", 51: "light drizzle", 53: "drizzle", 55: "heavy drizzle",
+    61: "light rain", 63: "rain", 65: "heavy rain", 71: "light snow", 73: "snow",
+    75: "heavy snow", 80: "rain showers", 81: "rain showers", 82: "heavy rain showers",
+    95: "thunderstorms", 96: "thunderstorms with hail", 99: "thunderstorms with hail",
+}
+
+def get_weather():
+    """Get current NYC weather. Returns a short description for Gemini."""
+    try:
+        res = requests.get(
+            "https://api.open-meteo.com/v1/forecast",
+            params={
+                "latitude": 40.7128,
+                "longitude": -74.0060,
+                "current": "temperature_2m,apparent_temperature,weather_code,precipitation",
+                "temperature_unit": "fahrenheit",
+                "timezone": "America/New_York",
+            },
+            timeout=5,
+        )
+        now = res.json()["current"]
+        condition = WEATHER_CODES.get(now["weather_code"], "mixed conditions")
+        return f"{round(now['temperature_2m'])}°F (feels like {round(now['apparent_temperature'])}°F), {condition}"
+    except Exception as e:
+        print("Weather error:", e)
+        return "unknown"
 
 def ask_gemini(prompt):
     """Try each model in order, moving on if one is busy or rate-limited."""
@@ -63,11 +94,14 @@ def plan():
     data = request.json
     now = datetime.now().strftime("%A %I:%M %p")
     events = find_events(data["mood"])
+    weather = get_weather()
+    print("Weather:", weather)
 
     prompt = f"""
 You are a friendly NYC local helping someone who is tired of deciding what to do.
-It is currently {now}. Their mood is "{data['mood']}" and they have {data['hours']} hours.
-
+It is currently {now}. The weather in NYC right now is {weather}.
+Their mood is "{data['mood']}" and they have {data['hours']} hours.
+If it's raining, very cold, or very hot, favor indoor spots. If it's nice out, favor outdoor ones.
 Here are live web search results about what's happening in NYC today:
 {events}
 
