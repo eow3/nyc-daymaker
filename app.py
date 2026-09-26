@@ -95,11 +95,17 @@ def plan():
     now = datetime.now().strftime("%A %I:%M %p")
     events = find_events(data["mood"])
     weather = get_weather()
+    lat, lng = data.get("lat"), data.get("lng")
+    if lat and lng and 40.49 <= lat <= 40.92 and -74.27 <= lng <= -73.68:
+        location_line = f"They are currently near latitude {lat}, longitude {lng}. Start the plan close to where they are."
+    else:
+        location_line = "Their location is unknown, so pick a lively, easy-to-reach neighborhood."
     print("Weather:", weather)
 
     prompt = f"""
 You are a friendly NYC local helping someone who is tired of deciding what to do.
 It is currently {now}. The weather in NYC right now is {weather}.
+{location_line}
 Their mood is "{data['mood']}" and they have {data['hours']} hours.
 If it's raining, very cold, or very hot, favor indoor spots. If it's nice out, favor outdoor ones.
 Here are live web search results about what's happening in NYC today:

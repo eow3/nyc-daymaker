@@ -16,27 +16,46 @@
   <p id="result"></p>
   <div id="map"></div>
 
-  <script>
+    <script>
     const map = L.map('map').setView([40.7128, -74.0060], 12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
     let markers = L.layerGroup().addTo(map);
+
+    function getLocation() {
+      return new Promise(resolve => {
+        if (!navigator.geolocation) return resolve(null);
+        navigator.geolocation.getCurrentPosition(
+          pos => resolve({
+            lat: +pos.coords.latitude.toFixed(3),
+            lng: +pos.coords.longitude.toFixed(3)
+          }),
+          () => resolve(null),
+          {timeout: 8000, maximumAge: 300000}
+        );
+      });
+    }
 
     async function getPlan() {
       const result = document.getElementById('result');
       result.textContent = 'Planning your day...';
       markers.clearLayers();
 
+      const loc = await getLocation();
+
       const res = await fetch('/plan', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
           mood: document.getElementById('mood').value,
-          hours: document.getElementById('hours').value
+          hours: document.getElementById('hours').value,
+          lat: loc ? loc.lat : null,
+          lng: loc ? loc.lng : null
         })
       });
       const data = await res.json();
       result.textContent = data.plan;
-            if (data.weather) {
+
+      if (data.weather) {
         document.getElementById('weather').textContent = `Right now in NYC: ${data.weather}`;
       }
 
@@ -46,7 +65,7 @@
       data.stops.forEach((stop, i) => {
         const point = [stop.lat, stop.lng];
         points.push(point);
-               const link = stop.link
+        const link = stop.link
           ? `<br><a href="${stop.link}" target="_blank" rel="noopener noreferrer">Event details</a>`
           : '';
         L.marker(point)
@@ -55,7 +74,15 @@
       });
 
       L.polyline(points, {dashArray: '6 8'}).addTo(markers);
-      map.fitBounds(points, {padding: [40, 40]});
+
+      const bounds = [...points];
+      if (loc) {
+        L.circleMarker([loc.lat, loc.lng], {radius: 8, color: '#e63946', fillOpacity: 0.8})
+          .addTo(markers)
+          .bindPopup('You are here');
+        bounds.push([loc.lat, loc.lng]);
+      }
+      map.fitBounds(bounds, {padding: [40, 40]});
     }
   </script>
 </body>
