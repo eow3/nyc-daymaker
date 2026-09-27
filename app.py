@@ -128,7 +128,8 @@ def verify_stops(stops, backups):
             final.append(stop)
         elif open_backups:
             backup = open_backups.pop(0)
-            backup["time"] = stop.get("time", "")
+            for key in ("time", "end_time", "duration_min"):
+                backup[key] = stop.get(key, "")
             print(f"Swapped closed '{stop.get('name')}' for '{backup.get('name')}'")
             final.append(backup)
     return final
@@ -221,16 +222,20 @@ If one of the search results is a real event happening today that fits, include 
 stop and put its source URL in "link". Otherwise set "link" to "".
 Only use events that are clearly happening today; ignore anything old or vague.
 
+Only mention specific details (exhibits, prices, performers, start times) if they appear
+in the search results above. Otherwise describe the place in general terms.
+Each stop's category must be one of: Culture, Outdoor, Food & Drink, Nightlife, Shopping, Event.
+
 Also include 2 backup stops nearby that fit the same plan, in case a stop turns out to be closed.
 
 Respond ONLY with JSON in this exact format:
 {{
-  "summary": "one short, upbeat sentence describing the plan",
+  "summary": "one vivid, upbeat sentence under 30 words describing the plan",
   "stops": [
-    {{"name": "place name", "lat": 40.0, "lng": -73.0, "time": "4:00 PM", "why": "one short sentence", "link": ""}}
+    {{"name": "place name", "address": "street address", "neighborhood": "e.g. West Village", "category": "Culture", "lat": 40.0, "lng": -73.0, "time": "4:00 PM", "end_time": "5:00 PM", "duration_min": 60, "why": "one or two short sentences", "link": ""}}
   ],
   "backups": [
-    {{"name": "place name", "lat": 40.0, "lng": -73.0, "time": "", "why": "one short sentence", "link": ""}}
+    {{"name": "place name", "address": "street address", "neighborhood": "e.g. West Village", "category": "Culture", "lat": 40.0, "lng": -73.0, "time": "", "end_time": "", "duration_min": 60, "why": "one or two short sentences", "link": ""}}
   ]
 }}
 """
@@ -278,7 +283,7 @@ landmark, and not already in their plan.
 
 Respond ONLY with JSON in this exact format:
 {{"candidates": [
-  {{"name": "place name", "lat": 40.0, "lng": -73.0, "why": "one short sentence on what makes it special", "link": ""}}
+  {{"name": "place name", "address": "street address", "neighborhood": "e.g. West Village", "category": "Culture", "lat": 40.0, "lng": -73.0, "why": "one short sentence on what makes it special", "link": ""}}
 ]}}
 """
 

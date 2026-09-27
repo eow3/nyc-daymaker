@@ -23,93 +23,106 @@
     </div>
   </header>
 
-  <main class="container">
-    <section id="controls">
-      <h2 class="section-label">How are you feeling?</h2>
-      <div class="mood-grid" data-group="mood">
-        <button type="button" class="mood-card" data-value="chill" style="--accent: var(--teal)">
-          <span class="mood-icon">🫧</span>
-          <span><strong>Chill</strong><small>Low-key, no rush</small></span>
-        </button>
-        <button type="button" class="mood-card" data-value="adventurous" style="--accent: var(--amber)">
-          <span class="mood-icon">⚡</span>
-          <span><strong>Adventurous</strong><small>Push the edges</small></span>
-        </button>
-        <button type="button" class="mood-card" data-value="social" style="--accent: var(--coral)">
-          <span class="mood-icon">✨</span>
-          <span><strong>Social</strong><small>People and energy</small></span>
-        </button>
-        <button type="button" class="mood-card" data-value="creative" style="--accent: var(--crimson)">
-          <span class="mood-icon">🎨</span>
-          <span><strong>Creative</strong><small>Make and discover</small></span>
-        </button>
-      </div>
-      <input type="hidden" id="mood" value="">
+  <!-- ===== Form view ===== -->
+  <main id="form-view" class="container">
+    <h2 class="section-label">How are you feeling?</h2>
+    <div class="mood-grid" data-group="mood">
+      <button type="button" class="mood-card" data-value="chill" style="--accent: var(--teal)">
+        <span class="mood-icon">🫧</span>
+        <span><strong>Chill</strong><small>Low-key, no rush</small></span>
+      </button>
+      <button type="button" class="mood-card" data-value="adventurous" style="--accent: var(--amber)">
+        <span class="mood-icon">⚡</span>
+        <span><strong>Adventurous</strong><small>Push the edges</small></span>
+      </button>
+      <button type="button" class="mood-card" data-value="social" style="--accent: var(--coral)">
+        <span class="mood-icon">✨</span>
+        <span><strong>Social</strong><small>People and energy</small></span>
+      </button>
+      <button type="button" class="mood-card" data-value="creative" style="--accent: var(--crimson)">
+        <span class="mood-icon">🎨</span>
+        <span><strong>Creative</strong><small>Make and discover</small></span>
+      </button>
+    </div>
+    <input type="hidden" id="mood" value="">
 
-      <h2 class="section-label">How long do you have?</h2>
-      <div class="stepper">
-        <button type="button" class="step-btn" onclick="changeHours(-1)" aria-label="Fewer hours">−</button>
-        <div class="hours-display"><span id="hours-num">3</span><span class="unit">hrs</span></div>
-        <button type="button" class="step-btn" onclick="changeHours(1)" aria-label="More hours">+</button>
-      </div>
-      <input type="hidden" id="hours" value="3">
+    <h2 class="section-label">How long do you have?</h2>
+    <div class="stepper">
+      <button type="button" class="step-btn" onclick="changeHours(-1)" aria-label="Fewer hours">−</button>
+      <div class="hours-display"><span id="hours-num">3</span><span class="unit">hrs</span></div>
+      <button type="button" class="step-btn" onclick="changeHours(1)" aria-label="More hours">+</button>
+    </div>
+    <input type="hidden" id="hours" value="3">
 
-      <h2 class="section-label">Budget</h2>
-      <div class="pill-row three" data-group="budget">
-        <button type="button" class="pill-card" data-value="free">
-          <strong class="display">Free</strong><small>Parks and public</small>
-        </button>
-        <button type="button" class="pill-card selected" data-value="low">
-          <strong class="display">$</strong><small>Under $20</small>
-        </button>
-        <button type="button" class="pill-card" data-value="medium">
-          <strong class="display">$$</strong><small>Around $50</small>
-        </button>
-      </div>
-      <input type="hidden" id="budget" value="low">
+    <h2 class="section-label">Budget</h2>
+    <div class="pill-row three" data-group="budget">
+      <button type="button" class="pill-card" data-value="free">
+        <strong class="display">Free</strong><small>Parks and public</small>
+      </button>
+      <button type="button" class="pill-card selected" data-value="low">
+        <strong class="display">$</strong><small>Under $20</small>
+      </button>
+      <button type="button" class="pill-card" data-value="medium">
+        <strong class="display">$$</strong><small>Around $50</small>
+      </button>
+    </div>
+    <input type="hidden" id="budget" value="low">
 
-      <h2 class="section-label">Who's coming?</h2>
-      <div class="pill-row four" data-group="group">
-        <button type="button" class="pill-card selected" data-value="solo">
-          <span class="emoji">🚶</span><strong>Solo</strong>
-        </button>
-        <button type="button" class="pill-card" data-value="date">
-          <span class="emoji">💕</span><strong>Date</strong>
-        </button>
-        <button type="button" class="pill-card" data-value="friends">
-          <span class="emoji">👯</span><strong>Friends</strong>
-        </button>
-        <button type="button" class="pill-card" data-value="kids">
-          <span class="emoji">🧒</span><strong>Kids</strong>
-        </button>
-      </div>
-      <input type="hidden" id="group" value="solo">
+    <h2 class="section-label">Who's coming?</h2>
+    <div class="pill-row four" data-group="group">
+      <button type="button" class="pill-card selected" data-value="solo"><span class="emoji">🚶</span><strong>Solo</strong></button>
+      <button type="button" class="pill-card" data-value="date"><span class="emoji">💕</span><strong>Date</strong></button>
+      <button type="button" class="pill-card" data-value="friends"><span class="emoji">👯</span><strong>Friends</strong></button>
+      <button type="button" class="pill-card" data-value="kids"><span class="emoji">🧒</span><strong>Kids</strong></button>
+    </div>
+    <input type="hidden" id="group" value="solo">
 
-      <label class="toggle-row">
-        <span>
-          <strong>♿ Step-free routes</strong>
-          <small>Wheelchair accessible stops and stations</small>
-        </span>
-        <input id="accessible" type="checkbox" class="toggle-input">
-        <span class="toggle" aria-hidden="true"></span>
-      </label>
+    <label class="toggle-row">
+      <span>
+        <strong>♿ Step-free routes</strong>
+        <small>Wheelchair accessible stops and stations</small>
+      </span>
+      <input id="accessible" type="checkbox" class="toggle-input">
+      <span class="toggle" aria-hidden="true"></span>
+    </label>
 
-      <button id="plan-btn" class="cta" onclick="getPlan()" disabled>Pick a mood to start</button>
-    </section>
-
-    <section id="results">
-      <p id="result" class="summary"></p>
-      <div id="map"></div>
-      <button id="offroute-btn" class="secondary" onclick="goOffRoute()" style="display:none">🎲 Take me off route</button>
-    </section>
+    <button id="plan-btn" class="cta" onclick="getPlan()" disabled>Pick a mood to start</button>
+    <p id="form-error" class="form-error"></p>
   </main>
+
+  <!-- ===== Results view ===== -->
+  <section id="results-view" class="results-layout" hidden>
+    <div class="results-panel">
+      <div class="summary-card">
+        <p id="summary" class="summary-text"></p>
+        <div id="summary-meta" class="summary-meta"></div>
+      </div>
+
+      <div id="stop-list" class="stop-list"></div>
+
+      <div class="extras">
+        <button id="offroute-btn" class="chip-btn" onclick="goOffRoute()">🎲 Take me off route</button>
+        <span class="chip-btn soon">🔊 Read aloud <em>soon</em></span>
+        <span class="chip-btn soon">🎯 Bingo card <em>soon</em></span>
+      </div>
+
+      <button class="back-btn" onclick="backToForm()">← Plan a different day</button>
+    </div>
+
+    <div class="map-panel"><div id="map"></div></div>
+  </section>
 
   <script>
     const map = L.map('map').setView([40.7128, -74.0060], 12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
     let markers = L.layerGroup().addTo(map);
     let currentStops = [];
+    let markerRefs = [];
     let currentLoc = null;
+
+    const MOOD_LABELS = {
+      chill: '🫧 Chill', adventurous: '⚡ Adventurous', social: '✨ Social', creative: '🎨 Creative'
+    };
 
     // ---------- Input cards ----------
     document.querySelectorAll('[data-group]').forEach(group => {
@@ -195,60 +208,154 @@
       });
     }
 
-    function makePopup(stop, label) {
-      const eventLink = stop.link && stop.link.startsWith('http')
-        ? `<br><a href="${escapeHtml(stop.link)}" target="_blank" rel="noopener noreferrer">Event details</a>`
+    function directionsUrl(stop) {
+      const dest = stop.address ? `${stop.name}, ${stop.address}, New York, NY` : `${stop.name}, New York, NY`;
+      return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(dest)}&travelmode=transit`;
+    }
+
+    function eventLinkHtml(stop) {
+      return stop.link && stop.link.startsWith('http')
+        ? `<a class="event-link" href="${escapeHtml(stop.link)}" target="_blank" rel="noopener noreferrer">Event details →</a>`
         : '';
-      const directions = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(stop.name + ', New York, NY')}&travelmode=transit`;
+    }
+
+    function makePopup(stop, label) {
       return `<b>${label}. ${escapeHtml(stop.name)}</b><br>` +
         (stop.time ? `${escapeHtml(stop.time)}<br>` : '') +
-        `${escapeHtml(stop.why)}${eventLink}` +
-        `<br><a href="${directions}" target="_blank" rel="noopener noreferrer">Directions</a>`;
+        `<a href="${directionsUrl(stop)}" target="_blank" rel="noopener noreferrer">Directions</a>`;
+    }
+
+    function stopCardHtml(stop, label, index, isGem) {
+      const category = stop.category || '';
+      const catClass = 'cat-' + (category || 'other').toLowerCase().replace(/[^a-z]/g, '');
+      const timeRange = stop.time
+        ? escapeHtml(stop.time) + (stop.end_time ? ' – ' + escapeHtml(stop.end_time) : '')
+        : '';
+      const duration = Number(stop.duration_min) > 0 ? `${Number(stop.duration_min)} min` : '';
+
+      return `
+        <article class="stop-card${isGem ? ' gem' : ''}" data-index="${index}">
+          <div class="stop-num">${label}</div>
+          <div class="stop-body">
+            <div class="stop-title">
+              <h3>${escapeHtml(stop.name)}</h3>
+              ${category ? `<span class="tag ${catClass}">${escapeHtml(category)}</span>` : ''}
+              ${isGem ? `<span class="tag cat-gem">Hidden gem</span>` : ''}
+            </div>
+            ${stop.address ? `<div class="stop-address">${escapeHtml(stop.address)}</div>` : ''}
+            ${(timeRange || duration) ? `<div class="stop-times">
+              ${timeRange ? `<span>🕑 ${timeRange}</span>` : ''}
+              ${duration ? `<span>⏱ ${duration}</span>` : ''}
+            </div>` : ''}
+            <p class="stop-why">${escapeHtml(stop.why)}</p>
+            <div class="stop-links">
+              ${eventLinkHtml(stop)}
+              <a href="${directionsUrl(stop)}" target="_blank" rel="noopener noreferrer">Directions →</a>
+            </div>
+          </div>
+        </article>`;
+    }
+
+    function highlight(index) {
+      document.querySelectorAll('.stop-card').forEach(c => {
+        c.classList.toggle('active', +c.dataset.index === index);
+      });
+    }
+
+    function addStop(stop, label, isGem) {
+      const index = currentStops.length;
+      currentStops.push(stop);
+
+      const marker = isGem
+        ? L.circleMarker([stop.lat, stop.lng], {radius: 11, color: '#DF3B57', fillColor: '#EE4B6A', fillOpacity: 0.9})
+        : L.marker([stop.lat, stop.lng]);
+      marker.addTo(markers).bindPopup(makePopup(stop, label));
+      markerRefs.push(marker);
+
+      const list = document.getElementById('stop-list');
+      list.insertAdjacentHTML('beforeend', stopCardHtml(stop, label, index, isGem));
+      const card = list.lastElementChild;
+
+      card.addEventListener('click', e => {
+        if (e.target.closest('a')) return;
+        highlight(index);
+        map.flyTo([stop.lat, stop.lng], 16, {duration: 0.6});
+        marker.openPopup();
+      });
+
+      marker.on('click', () => {
+        highlight(index);
+        card.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+      });
+
+      return {marker, card, index};
     }
 
     function fitAll() {
       const pts = currentStops.map(s => [s.lat, s.lng]);
       if (currentLoc) pts.push([currentLoc.lat, currentLoc.lng]);
-      if (pts.length) map.fitBounds(pts, {padding: [40, 40]});
+      if (pts.length) map.fitBounds(pts, {padding: [50, 50]});
+    }
+
+    function showResults() {
+      document.getElementById('form-view').hidden = true;
+      document.getElementById('results-view').hidden = false;
+      window.scrollTo(0, 0);
+      setTimeout(() => { map.invalidateSize(); fitAll(); }, 60);
+    }
+
+    function backToForm() {
+      document.getElementById('results-view').hidden = true;
+      document.getElementById('form-view').hidden = false;
+      window.scrollTo(0, 0);
     }
 
     // ---------- Plan ----------
     async function getPlan() {
-      const result = document.getElementById('result');
-      const offBtn = document.getElementById('offroute-btn');
       const cta = document.getElementById('plan-btn');
-
+      const errorEl = document.getElementById('form-error');
       cta.disabled = true;
       cta.textContent = 'Planning your day...';
-      result.textContent = 'Planning your day...';
-      offBtn.style.display = 'none';
-      markers.clearLayers();
-      currentStops = [];
-      document.getElementById('results').scrollIntoView({behavior: 'smooth'});
+      errorEl.textContent = '';
 
       try {
         currentLoc = await getLocation();
+        const settings = getSettings();
 
         const res = await fetch('/plan', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({
-            ...getSettings(),
+            ...settings,
             lat: currentLoc ? currentLoc.lat : null,
             lng: currentLoc ? currentLoc.lng : null
           })
         });
         const data = await res.json();
-        result.textContent = data.plan;
         showWeather(data.weather);
 
-        if (!data.stops || data.stops.length === 0) return;
-        currentStops = data.stops;
+        if (!res.ok || !data.stops || data.stops.length === 0) {
+          errorEl.textContent = data.plan || 'Something went wrong. Try again!';
+          return;
+        }
 
-        data.stops.forEach((stop, i) => {
-          L.marker([stop.lat, stop.lng]).addTo(markers).bindPopup(makePopup(stop, i + 1));
-        });
-        L.polyline(data.stops.map(s => [s.lat, s.lng]), {dashArray: '6 8', color: '#0F7173'}).addTo(markers);
+        // Reset
+        markers.clearLayers();
+        currentStops = [];
+        markerRefs = [];
+        document.getElementById('stop-list').innerHTML = '';
+
+        // Summary
+        document.getElementById('summary').textContent = data.plan;
+        const hoods = [...new Set(data.stops.map(s => s.neighborhood).filter(Boolean))].slice(0, 3);
+        document.getElementById('summary-meta').innerHTML =
+          (hoods.length ? `<span>📍 ${escapeHtml(hoods.join(' → '))}</span>` : '') +
+          `<span>⏱ ~${Number(settings.hours)} hrs</span>` +
+          `<span class="mood-chip mood-${escapeHtml(settings.mood)}">${MOOD_LABELS[settings.mood] || ''}</span>`;
+
+        // Stops, route, and location
+        data.stops.forEach((stop, i) => addStop(stop, i + 1, false));
+        L.polyline(data.stops.map(s => [s.lat, s.lng]), {dashArray: '6 8', color: '#0F7173', weight: 3}).addTo(markers);
 
         if (currentLoc) {
           L.circleMarker([currentLoc.lat, currentLoc.lng], {radius: 8, color: '#EF8354', fillColor: '#EF8354', fillOpacity: 0.9})
@@ -256,8 +363,9 @@
             .bindPopup('You are here');
         }
 
-        fitAll();
-        offBtn.style.display = 'inline-block';
+        showResults();
+      } catch (e) {
+        errorEl.textContent = 'Could not reach the server. Try again!';
       } finally {
         cta.disabled = false;
         cta.textContent = 'Plan my day →';
@@ -282,14 +390,11 @@
         const data = await res.json();
 
         if (data.gem) {
-          currentStops.push(data.gem);
-          L.circleMarker([data.gem.lat, data.gem.lng], {
-            radius: 11, color: '#DF3B57', fillColor: '#EE4B6A', fillOpacity: 0.9
-          })
-            .addTo(markers)
-            .bindPopup(makePopup(data.gem, '★ Off route'))
-            .openPopup();
+          const {marker, card, index} = addStop(data.gem, '★', true);
+          highlight(index);
           fitAll();
+          marker.openPopup();
+          card.scrollIntoView({behavior: 'smooth', block: 'nearest'});
         } else {
           alert(data.error || 'Could not find a hidden gem right now. Try again!');
         }
