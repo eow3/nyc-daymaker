@@ -1,8 +1,297 @@
+:root {
+  --coral: #EE4B6A;
+  --crimson: #DF3B57;
+  --amber: #EF8354;
+  --teal: #0F7173;
+  --sand: #D8A47F;
+  --paper: #F4EDE5;
+  --cream: #FBF6F1;
+  --ink: #1E1715;
+  --muted: #6B5D55;
+  --line: #EDE3DA;
+  --radius: 18px;
+}
+
+* { box-sizing: border-box; }
+
 body {
-  font-family: sans-serif;
-  margin: 16px;
+  margin: 0;
+  background: #fff;
+  color: var(--ink);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+button { font: inherit; color: inherit; }
+
+button:focus-visible,
+.toggle-input:focus-visible + .toggle {
+  outline: 3px solid color-mix(in srgb, var(--coral) 45%, transparent);
+  outline-offset: 2px;
+}
+
+/* ---------- Header ---------- */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 1100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--line);
+}
+
+.logo {
+  font-family: 'Big Shoulders Display', sans-serif;
+  font-weight: 900;
+  font-size: 34px;
+  line-height: 1;
+  letter-spacing: 0.5px;
+}
+.logo span { color: var(--coral); }
+
+.tagline {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 3px;
+}
+
+.weather-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: var(--cream);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+/* ---------- Layout ---------- */
+.container {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 8px 16px 56px;
+}
+
+.section-label {
+  margin: 28px 0 12px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ---------- Mood cards ---------- */
+.mood-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.mood-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  text-align: left;
+  background: #fff;
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s, background 0.15s;
+}
+.mood-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+.mood-card.selected {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 7%, white);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+.mood-icon { font-size: 26px; }
+.mood-card strong { display: block; font-size: 16px; }
+
+.mood-card small,
+.pill-card small,
+.toggle-row small {
+  display: block;
+  margin-top: 2px;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+/* ---------- Hours stepper ---------- */
+.stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: var(--cream);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.step-btn {
+  width: 42px;
+  height: 42px;
+  font-size: 22px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  cursor: pointer;
+}
+.step-btn:hover { border-color: var(--coral); color: var(--coral); }
+
+#hours-num {
+  font-family: 'Big Shoulders Display', sans-serif;
+  font-weight: 900;
+  font-size: 58px;
+  line-height: 1;
+  color: var(--coral);
+}
+.unit { margin-left: 6px; font-size: 18px; color: var(--muted); }
+
+/* ---------- Budget and group cards ---------- */
+.pill-row { display: grid; gap: 10px; }
+.pill-row.three { grid-template-columns: repeat(3, 1fr); }
+.pill-row.four { grid-template-columns: repeat(4, 1fr); }
+
+.pill-card {
+  padding: 14px 6px;
+  text-align: center;
+  background: #fff;
+  border: 1.5px solid var(--line);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.pill-card:hover { border-color: var(--sand); }
+.pill-card .display {
+  display: block;
+  font-family: 'Big Shoulders Display', sans-serif;
+  font-weight: 800;
+  font-size: 26px;
+}
+.pill-card .emoji { display: block; font-size: 22px; margin-bottom: 4px; }
+.pill-row.four strong { font-size: 13px; }
+
+[data-group="budget"] .selected {
+  border-color: var(--teal);
+  background: #EAF4F4;
+  color: var(--teal);
+}
+[data-group="group"] .selected {
+  border-color: var(--amber);
+  background: #FEF2EC;
+  color: #A8481F;
+}
+
+/* ---------- Step-free toggle ---------- */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 24px;
+  padding: 16px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.toggle-input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.toggle {
+  position: relative;
+  flex-shrink: 0;
+  width: 48px;
+  height: 28px;
+  background: #E3D9D1;
+  border-radius: 999px;
+  transition: background 0.2s;
+}
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s;
+}
+.toggle-input:checked + .toggle { background: var(--teal); }
+.toggle-input:checked + .toggle::after { transform: translateX(20px); }
+
+/* ---------- Main button ---------- */
+.cta {
+  width: 100%;
+  margin-top: 24px;
+  padding: 18px;
+  border: none;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--coral), var(--crimson));
+  color: #fff;
+  font-family: 'Big Shoulders Display', sans-serif;
+  font-weight: 800;
+  font-size: 22px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(238, 75, 106, 0.3);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.cta:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(238, 75, 106, 0.38); }
+.cta:disabled {
+  background: var(--line);
+  color: var(--muted);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+/* ---------- Results (full styling in phase two) ---------- */
+#results { margin-top: 36px; scroll-margin-top: 90px; }
+
+.summary:empty { display: none; }
+.summary {
+  margin: 0 0 16px;
+  padding: 20px;
+  font-family: 'Big Shoulders Display', sans-serif;
+  font-weight: 700;
+  font-size: 26px;
+  line-height: 1.2;
+  background: var(--cream);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
 }
 
 #map {
-  height: 70vh;
+  height: 60vh;
+  min-height: 320px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.secondary {
+  margin-top: 12px;
+  padding: 12px 18px;
+  font-weight: 600;
+  background: #fff;
+  border: 1.5px solid var(--line);
+  border-radius: 999px;
+  cursor: pointer;
+}
+.secondary:hover { border-color: var(--coral); color: var(--coral); }
+
+/* ---------- Small phones ---------- */
+@media (max-width: 420px) {
+  .logo { font-size: 28px; }
+  .tagline { display: none; }
+  .pill-row.four { grid-template-columns: repeat(2, 1fr); }
+  .summary { font-size: 22px; }
 }

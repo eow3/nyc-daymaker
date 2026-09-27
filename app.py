@@ -20,6 +20,13 @@ MODELS = ["gemini-3.8-flash", "gemini-3.7-flash", "gemini-3.5-flash", "gemini-3.
 
 MOODS = ["chill", "adventurous", "social", "creative"]
 
+MOOD_HINTS = {
+    "chill": "Low-key and unhurried: cozy cafes, quiet parks, bookstores, relaxed views. Minimal walking between stops.",
+    "adventurous": "Push the edges: unusual spots, new neighborhoods, active or unexpected experiences they wouldn't normally try.",
+    "social": "People and energy: lively spots, markets, events, places good for meeting people or talking with friends.",
+    "creative": "Make and discover: galleries, street art, workshops, design shops, live music, anything inspiring.",
+}
+
 BUDGETS = {
     "free": "Only suggest free activities (parks, free museums, free events, public spaces).",
     "low": "Keep it cheap, around $20 per person or less for the whole plan.",
@@ -169,6 +176,9 @@ def error_message(e):
 def home():
     return render_template("index.html")
 
+@app.route("/weather")
+def weather_route():
+    return jsonify({"weather": get_weather()})
 
 @app.route("/plan", methods=["POST"])
 def plan():
@@ -195,8 +205,7 @@ def plan():
 You are a friendly NYC local helping someone who is tired of deciding what to do.
 It is currently {now}. The weather in NYC right now is {weather}.
 {location_line}
-Their mood is "{mood}" and they have {hours} hours.
-{budget_line}
+Their mood is "{mood}": {MOOD_HINTS[mood]} They have {hours} hours.{budget_line}
 {group_line}
 {access_line}
 If it's raining, very cold, or very hot, favor indoor spots. If it's nice out, favor outdoor ones.

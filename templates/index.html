@@ -1,53 +1,108 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>NYC Daymaker</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RoamNYC</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 </head>
 <body>
-  <h1>NYC Daymaker</h1>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">ROAM<span>NYC</span></div>
+      <div class="tagline">The city, handed to you.</div>
+    </div>
+    <div class="weather-chip">
+      <span id="wx-icon">⛅</span>
+      <span id="weather">Checking weather...</span>
+    </div>
+  </header>
 
-  <div id="controls">
-    <label>Mood
-      <select id="mood">
-        <option>chill</option><option>adventurous</option><option>social</option><option>creative</option>
-      </select>
-    </label>
+  <main class="container">
+    <section id="controls">
+      <h2 class="section-label">How are you feeling?</h2>
+      <div class="mood-grid" data-group="mood">
+        <button type="button" class="mood-card" data-value="chill" style="--accent: var(--teal)">
+          <span class="mood-icon">🫧</span>
+          <span><strong>Chill</strong><small>Low-key, no rush</small></span>
+        </button>
+        <button type="button" class="mood-card" data-value="adventurous" style="--accent: var(--amber)">
+          <span class="mood-icon">⚡</span>
+          <span><strong>Adventurous</strong><small>Push the edges</small></span>
+        </button>
+        <button type="button" class="mood-card" data-value="social" style="--accent: var(--coral)">
+          <span class="mood-icon">✨</span>
+          <span><strong>Social</strong><small>People and energy</small></span>
+        </button>
+        <button type="button" class="mood-card" data-value="creative" style="--accent: var(--crimson)">
+          <span class="mood-icon">🎨</span>
+          <span><strong>Creative</strong><small>Make and discover</small></span>
+        </button>
+      </div>
+      <input type="hidden" id="mood" value="">
 
-    <label>Hours
-      <input id="hours" type="number" value="3" min="1" max="12">
-    </label>
+      <h2 class="section-label">How long do you have?</h2>
+      <div class="stepper">
+        <button type="button" class="step-btn" onclick="changeHours(-1)" aria-label="Fewer hours">−</button>
+        <div class="hours-display"><span id="hours-num">3</span><span class="unit">hrs</span></div>
+        <button type="button" class="step-btn" onclick="changeHours(1)" aria-label="More hours">+</button>
+      </div>
+      <input type="hidden" id="hours" value="3">
 
-    <label>Budget
-      <select id="budget">
-        <option value="free">Free</option>
-        <option value="low" selected>$</option>
-        <option value="medium">$$</option>
-      </select>
-    </label>
+      <h2 class="section-label">Budget</h2>
+      <div class="pill-row three" data-group="budget">
+        <button type="button" class="pill-card" data-value="free">
+          <strong class="display">Free</strong><small>Parks and public</small>
+        </button>
+        <button type="button" class="pill-card selected" data-value="low">
+          <strong class="display">$</strong><small>Under $20</small>
+        </button>
+        <button type="button" class="pill-card" data-value="medium">
+          <strong class="display">$$</strong><small>Around $50</small>
+        </button>
+      </div>
+      <input type="hidden" id="budget" value="low">
 
-    <label>Who's coming
-      <select id="group">
-        <option value="solo">Just me</option>
-        <option value="date">Date</option>
-        <option value="friends">Friends</option>
-        <option value="kids">With kids</option>
-      </select>
-    </label>
+      <h2 class="section-label">Who's coming?</h2>
+      <div class="pill-row four" data-group="group">
+        <button type="button" class="pill-card selected" data-value="solo">
+          <span class="emoji">🚶</span><strong>Solo</strong>
+        </button>
+        <button type="button" class="pill-card" data-value="date">
+          <span class="emoji">💕</span><strong>Date</strong>
+        </button>
+        <button type="button" class="pill-card" data-value="friends">
+          <span class="emoji">👯</span><strong>Friends</strong>
+        </button>
+        <button type="button" class="pill-card" data-value="kids">
+          <span class="emoji">🧒</span><strong>Kids</strong>
+        </button>
+      </div>
+      <input type="hidden" id="group" value="solo">
 
-    <label>
-      <input id="accessible" type="checkbox"> Step-free / wheelchair accessible
-    </label>
+      <label class="toggle-row">
+        <span>
+          <strong>♿ Step-free routes</strong>
+          <small>Wheelchair accessible stops and stations</small>
+        </span>
+        <input id="accessible" type="checkbox" class="toggle-input">
+        <span class="toggle" aria-hidden="true"></span>
+      </label>
 
-    <button onclick="getPlan()">Plan my day</button>
-        <button id="offroute-btn" onclick="goOffRoute()" style="display:none">Take me off route</button>
-  </div>
+      <button id="plan-btn" class="cta" onclick="getPlan()" disabled>Pick a mood to start</button>
+    </section>
 
-  <p id="weather"></p>
-  <p id="result"></p>
-  <div id="map"></div>
+    <section id="results">
+      <p id="result" class="summary"></p>
+      <div id="map"></div>
+      <button id="offroute-btn" class="secondary" onclick="goOffRoute()" style="display:none">🎲 Take me off route</button>
+    </section>
+  </main>
 
   <script>
     const map = L.map('map').setView([40.7128, -74.0060], 12);
@@ -56,6 +111,60 @@
     let currentStops = [];
     let currentLoc = null;
 
+    // ---------- Input cards ----------
+    document.querySelectorAll('[data-group]').forEach(group => {
+      const input = document.getElementById(group.dataset.group);
+      group.querySelectorAll('button').forEach(btn => {
+        btn.setAttribute('aria-pressed', btn.classList.contains('selected'));
+        btn.addEventListener('click', () => {
+          group.querySelectorAll('button').forEach(b => {
+            b.classList.remove('selected');
+            b.setAttribute('aria-pressed', 'false');
+          });
+          btn.classList.add('selected');
+          btn.setAttribute('aria-pressed', 'true');
+          input.value = btn.dataset.value;
+
+          if (group.dataset.group === 'mood') {
+            const cta = document.getElementById('plan-btn');
+            cta.disabled = false;
+            cta.textContent = 'Plan my day →';
+          }
+        });
+      });
+    });
+
+    function changeHours(delta) {
+      const input = document.getElementById('hours');
+      const h = Math.max(1, Math.min(12, +input.value + delta));
+      input.value = h;
+      document.getElementById('hours-num').textContent = h;
+    }
+
+    // ---------- Weather chip ----------
+    function weatherIcon(text) {
+      const t = text.toLowerCase();
+      if (t.includes('thunder')) return '⛈️';
+      if (t.includes('snow')) return '❄️';
+      if (t.includes('rain') || t.includes('drizzle') || t.includes('shower')) return '🌧️';
+      if (t.includes('fog')) return '🌫️';
+      if (t.includes('overcast')) return '☁️';
+      if (t.includes('partly')) return '⛅';
+      if (t.includes('clear')) return '☀️';
+      return '🌤️';
+    }
+
+    function showWeather(w) {
+      if (!w || w === 'unknown') return;
+      const el = document.getElementById('weather');
+      el.textContent = w.replace(/ \(feels like [^)]*\)/, '');
+      el.title = w;
+      document.getElementById('wx-icon').textContent = weatherIcon(w);
+    }
+
+    fetch('/weather').then(r => r.json()).then(d => showWeather(d.weather)).catch(() => {});
+
+    // ---------- Helpers ----------
     function escapeHtml(text) {
       const div = document.createElement('div');
       div.textContent = text ?? '';
@@ -103,50 +212,59 @@
       if (pts.length) map.fitBounds(pts, {padding: [40, 40]});
     }
 
+    // ---------- Plan ----------
     async function getPlan() {
       const result = document.getElementById('result');
       const offBtn = document.getElementById('offroute-btn');
+      const cta = document.getElementById('plan-btn');
+
+      cta.disabled = true;
+      cta.textContent = 'Planning your day...';
       result.textContent = 'Planning your day...';
       offBtn.style.display = 'none';
       markers.clearLayers();
       currentStops = [];
+      document.getElementById('results').scrollIntoView({behavior: 'smooth'});
 
-      currentLoc = await getLocation();
+      try {
+        currentLoc = await getLocation();
 
-      const res = await fetch('/plan', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          ...getSettings(),
-          lat: currentLoc ? currentLoc.lat : null,
-          lng: currentLoc ? currentLoc.lng : null
-        })
-      });
-      const data = await res.json();
-      result.textContent = data.plan;
+        const res = await fetch('/plan', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            ...getSettings(),
+            lat: currentLoc ? currentLoc.lat : null,
+            lng: currentLoc ? currentLoc.lng : null
+          })
+        });
+        const data = await res.json();
+        result.textContent = data.plan;
+        showWeather(data.weather);
 
-      if (data.weather) {
-        document.getElementById('weather').textContent = `Right now in NYC: ${data.weather}`;
+        if (!data.stops || data.stops.length === 0) return;
+        currentStops = data.stops;
+
+        data.stops.forEach((stop, i) => {
+          L.marker([stop.lat, stop.lng]).addTo(markers).bindPopup(makePopup(stop, i + 1));
+        });
+        L.polyline(data.stops.map(s => [s.lat, s.lng]), {dashArray: '6 8', color: '#0F7173'}).addTo(markers);
+
+        if (currentLoc) {
+          L.circleMarker([currentLoc.lat, currentLoc.lng], {radius: 8, color: '#EF8354', fillColor: '#EF8354', fillOpacity: 0.9})
+            .addTo(markers)
+            .bindPopup('You are here');
+        }
+
+        fitAll();
+        offBtn.style.display = 'inline-block';
+      } finally {
+        cta.disabled = false;
+        cta.textContent = 'Plan my day →';
       }
-
-      if (data.stops.length === 0) return;
-      currentStops = data.stops;
-
-      data.stops.forEach((stop, i) => {
-        L.marker([stop.lat, stop.lng]).addTo(markers).bindPopup(makePopup(stop, i + 1));
-      });
-      L.polyline(data.stops.map(s => [s.lat, s.lng]), {dashArray: '6 8'}).addTo(markers);
-
-      if (currentLoc) {
-        L.circleMarker([currentLoc.lat, currentLoc.lng], {radius: 8, color: '#e63946', fillOpacity: 0.8})
-          .addTo(markers)
-          .bindPopup('You are here');
-      }
-
-      fitAll();
-      offBtn.style.display = 'inline-block';
     }
 
+    // ---------- Off route ----------
     async function goOffRoute() {
       const btn = document.getElementById('offroute-btn');
       btn.disabled = true;
@@ -166,7 +284,7 @@
         if (data.gem) {
           currentStops.push(data.gem);
           L.circleMarker([data.gem.lat, data.gem.lng], {
-            radius: 11, color: '#f4a261', fillColor: '#f4a261', fillOpacity: 0.9
+            radius: 11, color: '#DF3B57', fillColor: '#EE4B6A', fillOpacity: 0.9
           })
             .addTo(markers)
             .bindPopup(makePopup(data.gem, '★ Off route'))
@@ -177,7 +295,7 @@
         }
       } finally {
         btn.disabled = false;
-        btn.textContent = 'Take me off route';
+        btn.textContent = '🎲 Take me off route';
       }
     }
   </script>
