@@ -411,6 +411,9 @@ button:focus-visible,
   min-height: calc(100vh - 71px);
   padding: 24px 16px;
 }
+body.is-loading .topbar { display: none; }
+body.is-loading .loading { min-height: 100vh; }
+
 .loading-inner { width: 100%; max-width: 560px; text-align: center; }
 
 .loading-logo {

@@ -314,6 +314,7 @@
     }
 
     function showResults() {
+      document.body.classList.remove('is-loading');
       document.getElementById('form-view').hidden = true;
       document.getElementById('loading-view').hidden = true;
       document.getElementById('results-view').hidden = false;
@@ -342,6 +343,7 @@
     }
 
     function startLoading() {
+      document.body.classList.add('is-loading');
       document.getElementById('form-view').hidden = true;
       document.getElementById('results-view').hidden = true;
       document.getElementById('loading-view').hidden = false;
@@ -370,6 +372,7 @@
     }
 
     function cancelLoading() {
+      document.body.classList.remove('is-loading');
       clearLoadingTimers();
       document.getElementById('loading-view').hidden = true;
       document.getElementById('form-view').hidden = false;
