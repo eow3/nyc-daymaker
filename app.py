@@ -4,7 +4,7 @@ import time
 from datetime import datetime
 
 import requests
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, Response
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
@@ -16,6 +16,8 @@ app = Flask(__name__)
 
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 tavily = TavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
+ELEVEN_KEY = os.getenv("ELEVENLABS_API_KEY")
+ELEVEN_VOICE = os.getenv("ELEVENLABS_VOICE_ID", "21m00Tcm4TlvDq8ikWAM")
 MODELS = ["gemini-3.8-flash", "gemini-3.7-flash", "gemini-3.5-flash", "gemini-3.5-flash-lite"]
 
 MOODS = ["chill", "adventurous", "social", "creative"]
@@ -296,6 +298,26 @@ Respond ONLY with JSON in this exact format:
     except Exception as e:
         return jsonify({"gem": None, "error": error_message(e)}), 500
 
+@app.route("/speak", methods=["POST"])
+def speak():
+    text = str((request.json or {}).get("text", ""))[:1200].strip()
+    if not text or not ELEVEN_KEY:
+        return jsonify({"error": "Read aloud is unavailable right now."}), 400
+
+    try:
+        r = requests.post(
+            f"https://api.elevenlabs.io/v1/text-to-speech/{ELEVEN_VOICE}",
+            headers={"xi-api-key": ELEVEN_KEY, "Content-Type": "application/json", "Accept": "audio/mpeg"},
+            json={"text": text, "model_id": "eleven_flash_v2_5"},
+            timeout=30,
+        )
+        if r.status_code != 200:
+            print("ElevenLabs error:", r.status_code, r.text[:200])
+            return jsonify({"error": "Read aloud is unavailable right now."}), 502
+        return Response(r.content, mimetype="audio/mpeg")
+    except Exception as e:
+        print("ElevenLabs error:", e)
+        return jsonify({"error": "Read aloud is unavailable right now."}), 502
 
 if __name__ == "__main__":
     app.run(debug=True)

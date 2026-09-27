@@ -118,8 +118,7 @@
 
       <div class="extras">
         <button id="offroute-btn" class="chip-btn" onclick="goOffRoute()">🎲 Take me off route</button>
-        <span class="chip-btn soon">🔊 Read aloud <em>soon</em></span>
-        <span class="chip-btn soon">🎯 Bingo card <em>soon</em></span>
+        <button id="read-btn" class="chip-btn" onclick="readAloud()">🔊 Read aloud</button>        <span class="chip-btn soon">🎯 Bingo card <em>soon</em></span>
       </div>
 
       <button class="back-btn" onclick="backToForm()">← Plan a different day</button>
@@ -408,6 +407,7 @@
         }
 
         // Reset
+        resetAudio();
         markers.clearLayers();
         currentStops = [];
         markerRefs = [];
@@ -438,7 +438,79 @@
         errorEl.textContent = 'Could not reach the server. Try again!';
       }
     }
+// ---------- Read aloud ----------
+    let planAudio = null;
+    let planAudioText = '';
 
+    function buildScript() {
+      const leads = ['First', 'Next', 'Then', 'After that'];
+      const parts = [`Here's your plan. ${document.getElementById('summary').textContent}`];
+      currentStops.forEach((s, i) => {
+        const isLast = i === currentStops.length - 1 && i > 0;
+        const lead = isLast ? 'Finally' : (leads[i] || 'Then');
+        parts.push(`${lead}${s.time ? ', at ' + s.time : ''}, ${s.name}. ${s.why}`);
+      });
+      parts.push('Enjoy your day in the city!');
+      return parts.join(' ');
+    }
+
+    function resetAudio() {
+      if (planAudio) {
+        planAudio.pause();
+        URL.revokeObjectURL(planAudio.src);
+      }
+      planAudio = null;
+      planAudioText = '';
+      const btn = document.getElementById('read-btn');
+      if (btn) btn.textContent = '🔊 Read aloud';
+    }
+
+    async function readAloud() {
+      const btn = document.getElementById('read-btn');
+
+      // Tapping while playing stops it
+      if (planAudio && !planAudio.paused) {
+        planAudio.pause();
+        planAudio.currentTime = 0;
+        btn.textContent = '🔊 Read aloud';
+        return;
+      }
+
+      const text = buildScript();
+
+      // Only generate new audio if the plan changed (saves credits)
+      if (!planAudio || planAudioText !== text) {
+        btn.disabled = true;
+        btn.textContent = '🔊 Getting voice ready...';
+        try {
+          const res = await fetch('/speak', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({text})
+          });
+          if (!res.ok) {
+            const d = await res.json().catch(() => ({}));
+            btn.textContent = '🔊 Read aloud';
+            alert(d.error || 'Read aloud is unavailable right now.');
+            return;
+          }
+          const blob = await res.blob();
+          resetAudio();
+          planAudio = new Audio(URL.createObjectURL(blob));
+          planAudioText = text;
+          planAudio.onended = () => { btn.textContent = '🔊 Read aloud'; };
+        } catch (e) {
+          btn.textContent = '🔊 Read aloud';
+          alert('Read aloud is unavailable right now.');
+          return;
+        } finally {
+          btn.disabled = false;
+        }
+      }
+
+      btn.textContent = '⏹ Stop';
+      planAudio.play();
+    }
     // ---------- Off route ----------
     async function goOffRoute() {
       const btn = document.getElementById('offroute-btn');
