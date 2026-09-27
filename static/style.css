@@ -404,6 +404,70 @@ button:focus-visible,
 }
 .back-btn:hover { border-color: var(--coral); color: var(--coral); }
 
+/* ---------- Loading screen ---------- */
+.loading {
+  display: grid;
+  place-items: center;
+  min-height: calc(100vh - 71px);
+  padding: 24px 16px;
+}
+.loading-inner { width: 100%; max-width: 560px; text-align: center; }
+
+.loading-logo {
+  font-family: 'Big Shoulders Display', sans-serif;
+  font-weight: 900;
+  font-size: clamp(64px, 14vw, 120px);
+  line-height: 0.95;
+}
+.loading-logo span { color: var(--coral); }
+
+.loading-sub { margin: 14px 0 36px; font-size: 18px; color: var(--muted); }
+
+.progress {
+  height: 6px;
+  background: #FDECE6;
+  border-radius: 999px;
+  overflow: hidden;
+}
+.progress-bar {
+  width: 0;
+  height: 100%;
+  background: linear-gradient(90deg, var(--amber), var(--coral));
+  border-radius: 999px;
+  transition: width 0.8s ease;
+}
+
+.loading-steps { margin: 36px 0 0; padding: 0; list-style: none; text-align: left; }
+.loading-steps li {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 0;
+  font-size: 18px;
+  color: #CFC3BA;
+  transition: color 0.3s;
+}
+.step-icon { width: 28px; font-size: 22px; text-align: center; opacity: 0.4; transition: opacity 0.3s; }
+.step-text { flex: 1; }
+.step-check { color: var(--teal); font-weight: 700; opacity: 0; transition: opacity 0.3s; }
+
+.loading-steps li.active { color: var(--coral); }
+.loading-steps li.active .step-icon { opacity: 1; animation: pulse 1.2s ease-in-out infinite; }
+.loading-steps li.done { color: #4A3F39; }
+.loading-steps li.done .step-icon { opacity: 1; }
+.loading-steps li.done .step-check { opacity: 1; }
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.18); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-steps li.active .step-icon { animation: none; }
+  .progress-bar { transition: none; }
+}
+
+
 /* ---------- Tablets and phones: map on top, list below ---------- */
 @media (max-width: 900px) {
   .results-layout { grid-template-columns: 1fr; height: auto; }

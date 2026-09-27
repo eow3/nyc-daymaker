@@ -90,6 +90,22 @@
     <p id="form-error" class="form-error"></p>
   </main>
 
+  <!-- ===== Loading view ===== -->
+  <section id="loading-view" class="loading" hidden>
+    <div class="loading-inner">
+      <div class="loading-logo">ROAM<span>NYC</span></div>
+      <p class="loading-sub">Building your plan</p>
+      <div class="progress"><div id="progress-bar" class="progress-bar"></div></div>
+      <ul id="loading-steps" class="loading-steps" aria-live="polite">
+        <li><span class="step-icon">📍</span><span class="step-text">Pinpointing your location...</span><span class="step-check">✓</span></li>
+        <li><span class="step-icon">🌤️</span><span class="step-text">Checking today's weather...</span><span class="step-check">✓</span></li>
+        <li><span class="step-icon">📅</span><span class="step-text">Scanning live NYC events...</span><span class="step-check">✓</span></li>
+        <li><span class="step-icon">🧭</span><span class="step-text">Mapping out your route...</span><span class="step-check">✓</span></li>        
+        <li><span class="step-icon">✨</span><span class="step-text">Adding the finishing touches...</span><span class="step-check">✓</span></li>      </ul>
+    </div>
+  </section>
+
+
   <!-- ===== Results view ===== -->
   <section id="results-view" class="results-layout" hidden>
     <div class="results-panel">
@@ -299,6 +315,7 @@
 
     function showResults() {
       document.getElementById('form-view').hidden = true;
+      document.getElementById('loading-view').hidden = true;
       document.getElementById('results-view').hidden = false;
       window.scrollTo(0, 0);
       setTimeout(() => { map.invalidateSize(); fitAll(); }, 60);
@@ -310,16 +327,63 @@
       window.scrollTo(0, 0);
     }
 
+
+        // ---------- Loading screen ----------
+    let loadingTimers = [];
+
+    function setStep(active) {
+      const items = document.querySelectorAll('#loading-steps li');
+      items.forEach((li, i) => {
+        li.classList.toggle('done', i < active);
+        li.classList.toggle('active', i === active);
+      });
+      const pct = Math.min(92, 8 + active * 20);
+      document.getElementById('progress-bar').style.width = pct + '%';
+    }
+
+    function startLoading() {
+      document.getElementById('form-view').hidden = true;
+      document.getElementById('results-view').hidden = true;
+      document.getElementById('loading-view').hidden = false;
+      window.scrollTo(0, 0);
+      setStep(0);
+    }
+
+    function runServerSteps() {
+      // Weather, events, Gemini, open-check. The last step waits for the real response.
+      setStep(1);
+      loadingTimers.push(setTimeout(() => setStep(2), 1200));
+      loadingTimers.push(setTimeout(() => setStep(3), 2800));
+      loadingTimers.push(setTimeout(() => setStep(4), 7000));
+    }
+
+    function clearLoadingTimers() {
+      loadingTimers.forEach(clearTimeout);
+      loadingTimers = [];
+    }
+
+    function finishLoading() {
+      clearLoadingTimers();
+      setStep(5);
+      document.getElementById('progress-bar').style.width = '100%';
+      return new Promise(resolve => setTimeout(resolve, 450));
+    }
+
+    function cancelLoading() {
+      clearLoadingTimers();
+      document.getElementById('loading-view').hidden = true;
+      document.getElementById('form-view').hidden = false;
+    }
+    
     // ---------- Plan ----------
     async function getPlan() {
-      const cta = document.getElementById('plan-btn');
       const errorEl = document.getElementById('form-error');
-      cta.disabled = true;
-      cta.textContent = 'Planning your day...';
       errorEl.textContent = '';
+      startLoading();
 
       try {
         currentLoc = await getLocation();
+        runServerSteps();
         const settings = getSettings();
 
         const res = await fetch('/plan', {
@@ -335,6 +399,7 @@
         showWeather(data.weather);
 
         if (!res.ok || !data.stops || data.stops.length === 0) {
+          cancelLoading();
           errorEl.textContent = data.plan || 'Something went wrong. Try again!';
           return;
         }
@@ -363,12 +428,11 @@
             .bindPopup('You are here');
         }
 
+        await finishLoading();
         showResults();
       } catch (e) {
+        cancelLoading();
         errorEl.textContent = 'Could not reach the server. Try again!';
-      } finally {
-        cta.disabled = false;
-        cta.textContent = 'Plan my day →';
       }
     }
 
